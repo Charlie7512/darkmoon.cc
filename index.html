@@ -31,8 +31,8 @@ local ThemeButton = Instance.new("TextButton", SettingsPanel)
 
 --// Loading Screen Setup
 LoadingScreen.Size = UDim2.new(1, 0, 1, 0)
-LoadingScreen.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-LoadingScreen.BackgroundTransparency = 0.6
+LoadingScreen.BackgroundColor3 = Color3.fromRGB(0, 0, 255)  -- Blue background
+LoadingScreen.BackgroundTransparency = 0
 LoadingScreen.Visible = true
 
 LoadingText.Size = UDim2.new(0, 300, 0, 100)
@@ -107,11 +107,34 @@ FOVCircle.BorderSizePixel = 2
 FOVCircle.BorderColor3 = Color3.fromRGB(0, 0, 0)
 
 --// Loading Screen Removal and Blur Effect
-wait(2)
-LoadingScreen.Visible = false
 local blurEffect = Instance.new("BlurEffect")
 blurEffect.Size = 24
 blurEffect.Parent = Camera
+
+--// Settings Panel Setup
+SettingsPanel.Size = UDim2.new(0, 200, 0, 100)
+SettingsPanel.Position = UDim2.new(0.85, 0, 0.05, 0)
+SettingsPanel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SettingsPanel.Visible = false
+
+ThemeButton.Size = UDim2.new(0, 180, 0, 40)
+ThemeButton.Position = UDim2.new(0.5, -90, 0.5, -20)
+ThemeButton.Text = "Switch to Light Theme"
+ThemeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ThemeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ThemeButton.Font = Enum.Font.Garamond
+ThemeButton.TextSize = 20
+ThemeButton.BorderSizePixel = 2
+ThemeButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ThemeButton.TextStrokeTransparency = 0.8
+ThemeButton.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
+--// Loading Screen Removal After 2 Seconds
+wait(2)
+
+-- Remove the blur effect and the loading screen
+LoadingScreen.Visible = false
+blurEffect.Size = 0 -- Removes blur effect
 
 --// Theme Switching Function
 local function switchTheme()
@@ -152,32 +175,26 @@ ToggleButton.MouseButton1Click:Connect(function()
     CAMLOCK_ENABLED = not CAMLOCK_ENABLED
     ToggleButton.Text = CAMLOCK_ENABLED and DISABLED_TEXT or ENABLED_TEXT
     ToggleButton.BackgroundColor3 = CAMLOCK_ENABLED and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-    Notification.Text = CAMLOCK_ENABLED and "Camlock Enabled" or "Camlock Disabled"
+    
+    -- Notification to show status
+    Notification.Text = CAMLOCK_ENABLED and "Camlock: ON" or "Camlock: OFF"
     Notification.Visible = true
-    wait(1.5)
+    wait(2)
     Notification.Visible = false
 end)
 
---// Camlock Function
-local function lockCamera()
-    local target = Players:GetPlayers()[1].Character -- Assuming you want to lock to the first player
-    if target and target:FindFirstChild("HumanoidRootPart") then
-        Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.HumanoidRootPart.Position)
-    end
-end
-
---// Keybind Listener
-UserInputService.InputBegan:Connect(function(input)
+--// Keybind for Camlock
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
     if input.KeyCode == CAMLOCK_KEY then
         CAMLOCK_ENABLED = not CAMLOCK_ENABLED
         ToggleButton.Text = CAMLOCK_ENABLED and DISABLED_TEXT or ENABLED_TEXT
         ToggleButton.BackgroundColor3 = CAMLOCK_ENABLED and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-    end
-end)
-
---// Update Camera Lock
-game:GetService("RunService").RenderStepped:Connect(function()
-    if CAMLOCK_ENABLED then
-        lockCamera()
+        
+        -- Notification for keybind toggle
+        Notification.Text = CAMLOCK_ENABLED and "Camlock: ON" or "Camlock: OFF"
+        Notification.Visible = true
+        wait(2)
+        Notification.Visible = false
     end
 end)
