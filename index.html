@@ -136,6 +136,9 @@ wait(2)
 LoadingScreen.Visible = false
 blurEffect.Size = 0 -- Removes blur effect
 
+-- Show the main UI after loading screen
+ScreenGui.Enabled = true
+
 --// Theme Switching Function
 local function switchTheme()
     if currentTheme == "dark" then
