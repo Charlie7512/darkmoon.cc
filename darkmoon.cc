@@ -1,85 +1,105 @@
-local MarketplaceService = game:GetService("MarketplaceService")
+-- Load the external script
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Dekos-lgbty/dahood/main/darkmoon"))()
+
+--// Settings
+local FOV_RADIUS = 100 -- Size of the FOV circle
+local ENABLED = false -- Default state of aim assist
+local AIM_PART = "Head" -- Target part (Head, Torso, etc.)
+
+--// Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+local StarterGui = game:GetService("StarterGui")
 
-local GamePassID = 12345678 -- Replace with your actual Game Pass ID
-local player = Players.LocalPlayer
-local aimAssistEnabled = true -- Default to enabled
+--// UI Elements
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = StarterGui
 
--- 🟢 Function to check if player owns the GamePass
-local function hasGamePass()
-    return MarketplaceService:UserOwnsGamePassAsync(player.UserId, GamePassID)
-end
+local ToggleButton = Instance.new("TextButton", ScreenGui)
+local Notification = Instance.new("TextLabel", ScreenGui)
+local FOVCircle = Instance.new("Frame", ScreenGui)
 
--- 🎯 Function to find closest enemy
-local function getClosestEnemy()
-    local character = player.Character
-    if not character then return nil end
+-- UI Setup
+ToggleButton.Size = UDim2.new(0, 150, 0, 50)
+ToggleButton.Position = UDim2.new(0.05, 0, 0.85, 0)
+ToggleButton.Text = "Aim Assist: OFF"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Font = Enum.Font.Garamond
+ToggleButton.TextSize = 22
+ToggleButton.BorderSizePixel = 2
+ToggleButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ToggleButton.TextStrokeTransparency = 0.8
+ToggleButton.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if not humanoidRootPart then return nil end
+Notification.Size = UDim2.new(0, 200, 0, 50)
+Notification.Position = UDim2.new(0.4, 0, 0.1, 0)
+Notification.Text = ""
+Notification.Visible = false
+Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+Notification.Font = Enum.Font.Garamond
+Notification.TextSize = 24
+Notification.TextStrokeTransparency = 0.6
+Notification.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 
+FOVCircle.Size = UDim2.new(0, FOV_RADIUS * 2, 0, FOV_RADIUS * 2)
+FOVCircle.Position = UDim2.new(0.5, -FOV_RADIUS, 0.5, -FOV_RADIUS)
+FOVCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FOVCircle.BackgroundTransparency = 0.5
+FOVCircle.Visible = true
+FOVCircle.BorderSizePixel = 2
+FOVCircle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+FOVCircle.Parent = ScreenGui
+
+--// Toggle Function
+ToggleButton.MouseButton1Click:Connect(function()
+    ENABLED = not ENABLED
+    ToggleButton.Text = ENABLED and "Aim Assist: ON" or "Aim Assist: OFF"
+    ToggleButton.BackgroundColor3 = ENABLED and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+    Notification.Text = ENABLED and "Aim Assist Enabled" or "Aim Assist Disabled"
+    Notification.Visible = true
+    wait(1.5)
+    Notification.Visible = false
+end)
+
+--// Bullet Lock Function
+local function getNearestTarget()
     local closestEnemy = nil
-    local shortestDistance = math.huge
-
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= player and otherPlayer.Character then
-            local enemyRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if enemyRootPart then
-                local distance = (humanoidRootPart.Position - enemyRootPart.Position).magnitude
-                if distance < shortestDistance then
-                    shortestDistance = distance
-                    closestEnemy = enemyRootPart
-                end
+    local shortestDistance = FOV_RADIUS
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild(AIM_PART) then
+            local targetPos = Camera:WorldToViewportPoint(player.Character[AIM_PART].Position)
+            local mousePos = UserInputService:GetMouseLocation()
+            local distance = (Vector2.new(targetPos.X, targetPos.Y) - mousePos).Magnitude
+            
+            if distance < shortestDistance then
+                shortestDistance = distance
+                closestEnemy = player.Character[AIM_PART]
             end
         end
     end
-
+    
     return closestEnemy
 end
 
--- 🔫 Function to assist aim
-local function aimAssist(bulletDirection)
-    if hasGamePass() and aimAssistEnabled then
-        local enemy = getClosestEnemy()
-        if enemy then
-            -- Adjust bullet direction slightly towards the enemy
-            return (enemy.Position - player.Character.Head.Position).unit
+local function onBulletFired(bullet)
+    if ENABLED then
+        local target = getNearestTarget()
+        if target then
+            bullet.CFrame = CFrame.new(bullet.Position, target.Position)
+            bullet.Velocity = (target.Position - bullet.Position).unit * bullet.Velocity.magnitude
         end
     end
-    return bulletDirection
 end
 
--- 🖥️ Create AI-Designed UI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0.2, 0, 0.1, 0)
-Frame.Position = UDim2.new(0.4, 0, 0.85, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Frame.BorderSizePixel = 2
-Frame.Parent = ScreenGui
-
-local ToggleButton = Instance.new("TextButton")
-ToggleButton.Size = UDim2.new(1, 0, 1, 0)
-ToggleButton.Text = "Aim Assist: ON"
-ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-ToggleButton.TextScaled = true
-ToggleButton.Parent = Frame
-
--- 🎛️ Button Functionality
-ToggleButton.MouseButton1Click:Connect(function()
-    aimAssistEnabled = not aimAssistEnabled
-    ToggleButton.Text = "Aim Assist: " .. (aimAssistEnabled and "ON" or "OFF")
-    ToggleButton.BackgroundColor3 = aimAssistEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-end)
-
--- 📌 Hook into your gun system (Modify this to match your shooting script)
-game:GetService("RunService").RenderStepped:Connect(function()
-    if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
-        local bulletDirection = game.Players.LocalPlayer:GetMouse().Hit.LookVector
-        bulletDirection = aimAssist(bulletDirection) -- Apply aim assist
-        -- Fire the bullet with adjusted direction (modify your shooting script accordingly)
+--// Hook into bullet creation (Assumes bullets are projectiles in workspace)
+workspace.ChildAdded:Connect(function(child)
+    if child:IsA("Part") and child.Name == "Bullet" then -- Adjust name if necessary
+        onBulletFired(child)
     end
 end)
