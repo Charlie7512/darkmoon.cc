@@ -2542,7 +2542,7 @@ do
 		--
 		function Library:Watermark(Properties)
 			local Watermark = {
-				Name = (Properties.Name or Properties.name or "Starhook.club | placeholder");
+				Name = (Properties.Name or Properties.name or "darkmoon.club | placeholder");
 				AnimateText = nil;
 			}
 			--
@@ -2608,14 +2608,14 @@ do
 
 			task.spawn(function()
 				while task.wait() do
-					for i = 1, #"Starhook.club" do
-						Watermark.AnimateText = string.sub("Starhook.club", 1, i) .. "";
+					for i = 1, #"starhook.club" do
+						Watermark.AnimateText = string.sub("starhook.club", 1, i) .. "";
 						Title.Text = Watermark.AnimateText .. " " .. Watermark.Name;
 						task.wait(0.4);
 					end;
 
-					for i = #"Starhook.club" - 1, 1, -1 do
-						Watermark.AnimateText = string.sub("Starhook.club", 1, i) .. "";
+					for i = #"starhook.club" - 1, 1, -1 do
+						Watermark.AnimateText = string.sub("starhook.club", 1, i) .. "";
 						Title.Text = Watermark.AnimateText .. " " .. Watermark.Name;
 						task.wait(0.4);
 					end;
@@ -2794,8 +2794,8 @@ local hitsounds = {
     ["Rust"] = "rbxassetid://6565371338"
 };
 
-if (not (isfolder("starhook"))) then
-	makefolder("starhook");
+if (not (isfolder("darkmoon"))) then
+	makefolder("darkmoon");
 end;
 
 --// game support
@@ -2974,7 +2974,7 @@ local camera = workspace.CurrentCamera;
 local locals = {
 	network_should_sleep = false,
 	original_position = CFrame.new(1, 1, 1),
-	should_starhook_destroy = false,
+	should_darkmoon_destroy = false,
 	old_ticks = {
 		assist_stutter_tick = tick(),
 		clone_chams_tick = tick(),
@@ -4012,7 +4012,7 @@ do
 		instances["local_text"] = utility.instance_new("TextLabel", { 
 			Name = "https://starhook.club",
 			Parent = screen_gui_2,
-			Text = '<font color="rgb(207, 227, 0)">starhook</font><font color="rgb(255, 255, 255)">.club</font>',
+			Text = '<font color="rgb(207, 227, 0)">darkmoon</font><font color="rgb(255, 255, 255)">.club</font>',
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			TextStrokeTransparency = 0.5,
@@ -4627,7 +4627,7 @@ do
 					local actual_color = `#{color}`;
 					local text_color = actual_color ~= "#nil" and actual_color or "#cfe300";
 
-					local text = custom_text_enabled and '<font color="' .. text_color .. '">' .. features.get_text(custom_text) .. '</font>' or '<font color="' .. text_color .. '">starhook</font><font color="rgb(255, 255, 255)">.club</font>';
+					local text = custom_text_enabled and '<font color="' .. text_color .. '">' .. features.get_text(custom_text) .. '</font>' or '<font color="' .. text_color .. '">darkmoon</font><font color="rgb(255, 255, 255)">.club</font>';
 					text_label.Text = text;
 					text_label.Position = UDim2.new(0, mouse_position.X, 0, mouse_position.Y + cursor_offset_y);
 				else
@@ -4701,10 +4701,10 @@ do
 				local visualize_color = flags["anti_aim_c_sync_visualize_color"];
 				local visualize_dot_size = flags["anti_aim_c_sync_dot_size"];
 
-				--// starhook classics
-				local classics_enabled = flags["anti_aim_starhook_classics_enabled"];
-				local classics_keybind = flags["anti_aim_starhook_classics_keybind"];
-				local classics_types = flags["anti_aim_starhook_classics"];
+				--// darkmoon classics
+				local classics_enabled = flags["anti_aim_darkmoon_classics_enabled"];
+				local classics_keybind = flags["anti_aim_darkmoon_classics_keybind"];
+				local classics_types = flags["anti_aim_darkmoon_classics"];
 
 				if ((enabled or classics_enabled) and (keybind or classics_keybind) and (not (classics_keybind and classics_enabled and classics_types == "supercoolboi34 Destroyer") or (classics_keybind and classics_enabled and classics_types == "supercoolboi34 Destroyer"))) then
 					local hrp = local_player.Character.HumanoidRootPart;
@@ -4719,7 +4719,7 @@ do
 						["Local Random"] = hrp.CFrame + custom_math.random_vector3(randomization),
 						["Target Random"] = is_targetting and locals.target_aim.target.Character.HumanoidRootPart.CFrame + custom_math.random_vector3(randomization) or hrp.CFrame,
 						["Destroy Cheaters"] = hrp.CFrame + Vector3.new(0 / 0, 1, math.huge),
-						["supercoolboi34 Destroyer"] = locals.should_starhook_destroy and hrp.CFrame + Vector3.new(0 / 0, 1, math.huge) or hrp.CFrame
+						["supercoolboi34 Destroyer"] = locals.should_darkmoon_destroy and hrp.CFrame + Vector3.new(0 / 0, 1, math.huge) or hrp.CFrame
 					};
 					
 					local desync_type = (classics_enabled and classics_keybind and (classics_types == "Destroy Cheaters" and types["Destroy Cheaters"] or classics_types == "supercoolboi34 Destroyer" and types["supercoolboi34 Destroyer"] or types[classics_types])) or (enabled and keybind and types[c_sync_type]);
@@ -4774,15 +4774,15 @@ do
 
 			task.spawn(function()
 				while task.wait(0.1) do
-					locals.should_starhook_destroy = not locals.should_starhook_destroy;
+					locals.should_darkmoon_destroy = not locals.should_darkmoon_destroy;
 				end;
 			end);
 
 			--// invis desync
 			--[[utility.new_connection(run_service.Heartbeat, function()
-				local classics_enabled = flags["anti_aim_starhook_classics_enabled"];
-				local classics_keybind = flags["anti_aim_starhook_classics_keybind"];
-				local classics_types = flags["anti_aim_starhook_classics"];
+				local classics_enabled = flags["anti_aim_darkmoon_classics_enabled"];
+				local classics_keybind = flags["anti_aim_darkmoon_classics_keybind"];
+				local classics_types = flags["anti_aim_darkmoon_classics"];
 
 				if ((classics_enabled and classics_keybind) and classics_types == "Revert Desync") then
 
@@ -5280,7 +5280,7 @@ do
 		end));
 
 		local __index; __index = hookmetamethod(game, "__index", LPH_NO_VIRTUALIZE(function(self, property)
-			if (not checkcaller() and ((((flags["anti_aim_c_sync_enabled"] or (flags["anti_aim_starhook_classics_enabled"] and (flags["anti_aim_starhook_classics"] == "Destroy Cheaters" or flags["anti_aim_starhook_classics"] == "supercoolboi34 Destroyer"))) and (flags["anti_aim_c_sync_keybind"] or flags["anti_aim_starhook_classics_keybind"]))) and property == "CFrame" and self == local_player.Character.HumanoidRootPart)) then
+			if (not checkcaller() and ((((flags["anti_aim_c_sync_enabled"] or (flags["anti_aim_darkmoon_classics_enabled"] and (flags["anti_aim_darkmoon_classics"] == "Destroy Cheaters" or flags["anti_aim_darkmoon_classics"] == "supercoolboi34 Destroyer"))) and (flags["anti_aim_c_sync_keybind"] or flags["anti_aim_darkmoon_classics_keybind"]))) and property == "CFrame" and self == local_player.Character.HumanoidRootPart)) then
 				return locals.original_position;
 			end;
 
@@ -5882,7 +5882,7 @@ do
 		local network_desync = ui.tabs["anti_aim"]:Section({Name = "Network Desync", Side = "Right", Size = 110});
 		local c_sync = ui.tabs["anti_aim"]:Section({Name = "C-Sync", Side = "Right", Size = 300});
 		local fflag = ui.tabs["anti_aim"]:Section({Name = "FFlag Desync", Side = "Left", Size = 95});
-		local starhook_classics = ui.tabs["anti_aim"]:Section({Name = "Starhook Classics", Side = "Left", Size = 150});
+		local darkmoon_classics = ui.tabs["anti_aim"]:Section({Name = "darkmoon Classics", Side = "Left", Size = 150});
 
 		--// velocity spoofer
 		do
@@ -5940,9 +5940,9 @@ do
 
 		--// destroy cheaters
 		do
-			starhook_classics:Toggle({Name = "Enabled", Flag = "anti_aim_starhook_classics_enabled"});
-			starhook_classics:Keybind({Flag = "anti_aim_starhook_classics_keybind", Name = "Keybind", Default = Enum.KeyCode.Y, Mode = "Toggle"});
-			starhook_classics:List({Name = "Classics", Flag = "anti_aim_starhook_classics", Options = {"Destroy Cheaters", "supercoolboi34 Destroyer"}, Default = "Destroy Cheaters"});
+			darkmoon_classics:Toggle({Name = "Enabled", Flag = "anti_aim_darkmoon_classics_enabled"});
+			darkmoon_classics:Keybind({Flag = "anti_aim_darkmoon_classics_keybind", Name = "Keybind", Default = Enum.KeyCode.Y, Mode = "Toggle"});
+			darkmoon_classics:List({Name = "Classics", Flag = "anti_aim_darkmoon_classics", Options = {"Destroy Cheaters", "supercoolboi34 Destroyer"}, Default = "Destroy Cheaters"});
 		end;
 	end;
 
@@ -5956,19 +5956,19 @@ do
 
 		local current_list = {};
 
-		if not isfolder("starhook") then 
-		    makefolder("starhook");
+		if not isfolder("darkmoon") then 
+		    makefolder("darkmoon");
 		end;
 
-		if not isfolder("starhook/configs") then 
-		    makefolder("starhook/configs");
+		if not isfolder("darkmoon/configs") then 
+		    makefolder("darkmoon/configs");
 		end;
 
 		local function update_config_list()
 		    local list = {};
 		
-		    for idx, file in listfiles("starhook/configs") do
-		        local file_name = file:gsub("starhook/configs\\", ""):gsub(".cfg", ""):gsub("starhook/configs/", "");
+		    for idx, file in listfiles("darkmoon/configs") do
+		        local file_name = file:gsub("darkmoon/configs\\", ""):gsub(".cfg", ""):gsub("darkmoon/configs/", "");
 		        list[#list + 1] = file_name;
 		    end;
 		
@@ -5991,31 +5991,31 @@ do
 
 		cfgs:Button({Name = "Create", Callback = function()
 		    local config_name = flags.settings_configuration_name;
-		    if config_name == "" or isfile("starhook/configs/" .. config_name .. ".cfg") then
+		    if config_name == "" or isfile("darkmoon/configs/" .. config_name .. ".cfg") then
 		        return;
 		    end;
-		    writefile("starhook/configs/" .. config_name .. ".cfg", Library:GetConfig());
+		    writefile("darkmoon/configs/" .. config_name .. ".cfg", Library:GetConfig());
 		    update_config_list();
 		end});
 
 		cfgs:Button({Name = "Save", Callback = function()
 		    local selected_config = flags.setting_configuration_list;
 		    if selected_config then
-		        writefile("starhook/configs/" .. selected_config .. ".cfg", Library:GetConfig());
+		        writefile("darkmoon/configs/" .. selected_config .. ".cfg", Library:GetConfig());
 		    end;
 		end});
 
 		cfgs:Button({Name = "Load", Callback = function()
 		    local selected_config = flags.setting_configuration_list;
 		    if selected_config then
-		        Library:LoadConfig(readfile("starhook/configs/" .. selected_config .. ".cfg"));
+		        Library:LoadConfig(readfile("darkmoon/configs/" .. selected_config .. ".cfg"));
 		    end;
 		end});
 
 		cfgs:Button({Name = "Delete", Callback = function()
 		    local selected_config = flags.setting_configuration_list;
 		    if selected_config then
-		        delfile("starhook/configs/" .. selected_config .. ".cfg");
+		        delfile("darkmoon/configs/" .. selected_config .. ".cfg");
 		    end;
 		    update_config_list();
 		end});
