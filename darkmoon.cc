@@ -9,23 +9,33 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
+local StarterGui = game:GetService("StarterGui")
 
 --// UI Elements
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = StarterGui
+
 local ToggleButton = Instance.new("TextButton", ScreenGui)
 local Notification = Instance.new("TextLabel", ScreenGui)
 local FOVCircle = Instance.new("Frame", ScreenGui)
 
 -- UI Setup
-ToggleButton.Size = UDim2.new(0, 100, 0, 50)
-ToggleButton.Position = UDim2.new(0.05, 0, 0.8, 0)
+ToggleButton.Size = UDim2.new(0, 150, 0, 50)
+ToggleButton.Position = UDim2.new(0.05, 0, 0.85, 0)
 ToggleButton.Text = "Aim Assist: OFF"
 ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.TextSize = 20
 
-Notification.Size = UDim2.new(0, 150, 0, 50)
+Notification.Size = UDim2.new(0, 200, 0, 50)
 Notification.Position = UDim2.new(0.4, 0, 0.1, 0)
 Notification.Text = ""
 Notification.Visible = false
+Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+Notification.Font = Enum.Font.SourceSansBold
+Notification.TextSize = 20
 
 FOVCircle.Size = UDim2.new(0, FOV_RADIUS * 2, 0, FOV_RADIUS * 2)
 FOVCircle.Position = UDim2.new(0.5, -FOV_RADIUS, 0.5, -FOV_RADIUS)
@@ -33,6 +43,7 @@ FOVCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 FOVCircle.BackgroundTransparency = 0.5
 FOVCircle.Visible = true
 FOVCircle.BorderSizePixel = 2
+FOVCircle.Parent = ScreenGui
 
 --// Toggle Function
 ToggleButton.MouseButton1Click:Connect(function()
@@ -71,6 +82,7 @@ local function onBulletFired(bullet)
         local target = getNearestTarget()
         if target then
             bullet.CFrame = CFrame.new(bullet.Position, target.Position)
+            bullet.Velocity = (target.Position - bullet.Position).unit * bullet.Velocity.magnitude
         end
     end
 end
