@@ -1,18 +1,16 @@
--- Load the external script
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Dekos-lgbty/dahood/main/starhook"))()
-
 --// Settings
-local FOV_RADIUS = 100 -- Size of the FOV circle
-local ENABLED = false -- Default state of aim assist
-local AIM_PART = "Head" -- Target part (Head, Torso, etc.)
+local CAMLOCK_ENABLED = false
+local ENABLED_TEXT = "Camlock: OFF"
+local DISABLED_TEXT = "Camlock: ON"
+local CAMLOCK_KEY = Enum.KeyCode.C
+local currentTheme = "dark"  -- default theme (can be 'light' or 'dark')
 
 --// Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
 local StarterGui = game:GetService("StarterGui")
+local TweenService = game:GetService("TweenService")
 
 --// UI Elements
 local ScreenGui = Instance.new("ScreenGui")
@@ -22,14 +20,68 @@ local ToggleButton = Instance.new("TextButton", ScreenGui)
 local Notification = Instance.new("TextLabel", ScreenGui)
 local FOVCircle = Instance.new("Frame", ScreenGui)
 
--- UI Setup
-ToggleButton.Size = UDim2.new(0, 150, 0, 50)
-ToggleButton.Position = UDim2.new(0.05, 0, 0.85, 0)
-ToggleButton.Text = "Darkmoon: OFF"
+--// Loading Screen Elements
+local LoadingScreen = Instance.new("Frame", ScreenGui)
+local LoadingText = Instance.new("TextLabel", LoadingScreen)
+
+--// Settings Panel Elements
+local SettingsPanel = Instance.new("Frame", ScreenGui)
+local SettingsButton = Instance.new("TextButton", ScreenGui)
+local ThemeButton = Instance.new("TextButton", SettingsPanel)
+
+--// Loading Screen Setup
+LoadingScreen.Size = UDim2.new(1, 0, 1, 0)
+LoadingScreen.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+LoadingScreen.BackgroundTransparency = 0.6
+LoadingScreen.Visible = true
+
+LoadingText.Size = UDim2.new(0, 300, 0, 100)
+LoadingText.Position = UDim2.new(0.5, -150, 0.5, -50)
+LoadingText.Text = "Darkmoon"
+LoadingText.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow font
+LoadingText.Font = Enum.Font.Garamond
+LoadingText.TextSize = 48
+LoadingText.TextStrokeTransparency = 0.4
+LoadingText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
+--// Settings Panel Setup
+SettingsPanel.Size = UDim2.new(0, 200, 0, 100)
+SettingsPanel.Position = UDim2.new(0.85, 0, 0.05, 0)
+SettingsPanel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SettingsPanel.Visible = false
+
+ThemeButton.Size = UDim2.new(0, 180, 0, 40)
+ThemeButton.Position = UDim2.new(0.5, -90, 0.5, -20)
+ThemeButton.Text = "Switch to Light Theme"
+ThemeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+ThemeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ThemeButton.Font = Enum.Font.Garamond
+ThemeButton.TextSize = 20
+ThemeButton.BorderSizePixel = 2
+ThemeButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+ThemeButton.TextStrokeTransparency = 0.8
+ThemeButton.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
+SettingsButton.Size = UDim2.new(0, 200, 0, 50)
+SettingsButton.Position = UDim2.new(0.05, 0, 0.85, 0)
+SettingsButton.Text = "Settings"
+SettingsButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+SettingsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SettingsButton.Font = Enum.Font.Garamond
+SettingsButton.TextSize = 20
+SettingsButton.BorderSizePixel = 2
+SettingsButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+SettingsButton.TextStrokeTransparency = 0.8
+SettingsButton.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
+--// UI Setup
+ToggleButton.Size = UDim2.new(0, 200, 0, 50)
+ToggleButton.Position = UDim2.new(0.05, 0, 0.75, 0)
+ToggleButton.Text = ENABLED_TEXT
 ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.Font = Enum.Font.Garamond
-ToggleButton.TextSize = 22
+ToggleButton.TextSize = 20
 ToggleButton.BorderSizePixel = 2
 ToggleButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
 ToggleButton.TextStrokeTransparency = 0.8
@@ -46,6 +98,86 @@ Notification.TextSize = 24
 Notification.TextStrokeTransparency = 0.6
 Notification.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 
-FOVCircle.Size = UDim2.new(0, FOV_RADIUS * 2, 0, FOV_RADIUS * 2)
-FOVCircle.Position = UDim2.new(0.5, -FOV_RADIUS, 0.5, -FOV_RADIUS)
-FOVCircle.BackgroundColor3 = Color3.fromRGB(255,
+FOVCircle.Size = UDim2.new(0, 100, 0, 100)
+FOVCircle.Position = UDim2.new(0.5, -50, 0.5, -50)
+FOVCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FOVCircle.BackgroundTransparency = 0.5
+FOVCircle.Visible = false
+FOVCircle.BorderSizePixel = 2
+FOVCircle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+--// Loading Screen Removal and Blur Effect
+wait(2)
+LoadingScreen.Visible = false
+local blurEffect = Instance.new("BlurEffect")
+blurEffect.Size = 24
+blurEffect.Parent = Camera
+
+--// Theme Switching Function
+local function switchTheme()
+    if currentTheme == "dark" then
+        currentTheme = "light"
+        -- Light theme colors
+        ScreenGui.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        ToggleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+        Notification.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Notification.TextColor3 = Color3.fromRGB(0, 0, 0)
+        ThemeButton.Text = "Switch to Dark Theme"
+        ThemeButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        currentTheme = "dark"
+        -- Dark theme colors
+        ScreenGui.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ThemeButton.Text = "Switch to Light Theme"
+        ThemeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end
+
+--// Button Click Functions
+SettingsButton.MouseButton1Click:Connect(function()
+    SettingsPanel.Visible = not SettingsPanel.Visible
+end)
+
+ThemeButton.MouseButton1Click:Connect(function()
+    switchTheme()
+end)
+
+--// Toggle Function
+ToggleButton.MouseButton1Click:Connect(function()
+    CAMLOCK_ENABLED = not CAMLOCK_ENABLED
+    ToggleButton.Text = CAMLOCK_ENABLED and DISABLED_TEXT or ENABLED_TEXT
+    ToggleButton.BackgroundColor3 = CAMLOCK_ENABLED and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+    Notification.Text = CAMLOCK_ENABLED and "Camlock Enabled" or "Camlock Disabled"
+    Notification.Visible = true
+    wait(1.5)
+    Notification.Visible = false
+end)
+
+--// Camlock Function
+local function lockCamera()
+    local target = Players:GetPlayers()[1].Character -- Assuming you want to lock to the first player
+    if target and target:FindFirstChild("HumanoidRootPart") then
+        Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.HumanoidRootPart.Position)
+    end
+end
+
+--// Keybind Listener
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == CAMLOCK_KEY then
+        CAMLOCK_ENABLED = not CAMLOCK_ENABLED
+        ToggleButton.Text = CAMLOCK_ENABLED and DISABLED_TEXT or ENABLED_TEXT
+        ToggleButton.BackgroundColor3 = CAMLOCK_ENABLED and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+    end
+end)
+
+--// Update Camera Lock
+game:GetService("RunService").RenderStepped:Connect(function()
+    if CAMLOCK_ENABLED then
+        lockCamera()
+    end
+end)
